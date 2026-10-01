@@ -4,7 +4,7 @@ node_modules/
 # Your projects stay on your machine; only the bundled example is part of the repo.
 # (projects/CLAUDE.md is written by the app when it starts.)
 projects/*
-!projects/example/
+projects/example/
 
 # Per-project internals (chats, undo, captured frames) and exported videos
 projects/*/.storyboard/

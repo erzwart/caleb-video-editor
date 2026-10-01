@@ -106,13 +106,13 @@ function useUndo(scopeKey: string) {
   const undo = async () => {
     try {
       await api.undo(project.id, scopeKey);
-      toast('Reverted Claude’s last change');
+      toast('Reverted the agent’s last change');
     } catch (e) {
       toastError(e);
     }
   };
   const clear = async () => {
-    if (!confirm('Clear this chat? Claude starts a fresh conversation (your scene files are not affected).')) return;
+    if (!confirm('Clear this chat? The agent starts a fresh conversation (your scene files are not affected).')) return;
     await api.clearChat(project.id, scopeKey).catch(toastError);
   };
   return { canUndo, undo, clear, hasMessages: Boolean(chat?.messages.length) };
@@ -141,7 +141,7 @@ function SceneToolbar({ scene }: { scene: SceneState }) {
   };
   return (
     <div className="side-toolbar">
-      <button className="btn btn-sm" disabled={!canUndo} onClick={undo} title="Undo Claude’s last change to this scene">
+      <button className="btn btn-sm" disabled={!canUndo} onClick={undo} title="Undo the agent’s last change to this scene">
         <Undo2 size={15} /> Undo
       </button>
       <button
@@ -258,7 +258,7 @@ function Rail() {
       {item(
         'chat',
         'Chat',
-        busy ? 'Claude is working' : unread ? 'Claude replied' : null,
+        busy ? 'the agent is working' : unread ? 'the agent replied' : null,
         <MessageSquare size={18} />,
         busy ? working : unread ? <span className="rail-badge rail-dot" /> : null,
       )}

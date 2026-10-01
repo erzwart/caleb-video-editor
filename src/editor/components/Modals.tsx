@@ -14,7 +14,7 @@ export function ArtDirectionModal() {
     try {
       await api.setArtDirection(project.id, text);
       await refreshProject();
-      toast('Art direction saved — Claude reads it before every edit');
+      toast('Art direction saved — the agent reads it before every edit');
       close();
     } catch (e) {
       toastError(e);
@@ -41,8 +41,8 @@ export function ArtDirectionModal() {
       }
     >
       <p className="dim modal-intro">
-        The look every scene shares: palette, type scale, motion principles, layout rules. Claude reads this before every edit, in
-        every scene.
+        The look every scene shares: palette, type scale, motion principles, layout rules. the agent reads this before every edit,
+        in every scene.
       </p>
       <textarea
         className="art-editor"

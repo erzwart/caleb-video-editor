@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { BASE_URL, CLAUDE_BIN, FFMPEG, HOST, MUSIC_URL, PORT, PROJECTS_DIR, ROOT, SFX_URL } from './config';
+import { AGENT_PROVIDER, BASE_URL, CLAUDE_BIN, FFMPEG, HOST, MUSIC_URL, PORT, PROJECTS_DIR, ROOT, SFX_URL } from './config';
+import { CodexProvider } from './agents/codex';
 import { engineHealth, engineInstalled, isLocalUrl } from './music/engine';
 import { readSettings } from './settings';
 import { rail, Task } from './cli/ui';
@@ -131,6 +132,13 @@ export async function checkClaude(): Promise<Check> {
     : { level: 'fail', label: `Claude Code ${status.version} is not logged in`, fix: 'Run: claude auth login' };
 }
 
+export async function checkCodex(): Promise<Check> {
+  const status = await new CodexProvider().status();
+  return status.ok
+    ? { level: 'ok', label: `Codex ${status.version}, logged in` }
+    : { level: 'fail', label: status.detail ?? 'Codex is unavailable', fix: 'Install Codex CLI 0.159+ and run: codex login' };
+}
+
 async function checkPort(): Promise<Check> {
   const free = await new Promise<boolean>((resolve) => {
     const server = net.createServer();
@@ -216,7 +224,7 @@ export async function doctor(): Promise<number> {
     checkNode(),
     checkFfmpeg(),
     checkChromium(),
-    checkClaude(),
+    AGENT_PROVIDER === 'codex' ? checkCodex() : checkClaude(),
     checkPort(),
     checkProjects(),
     checkMusic(),

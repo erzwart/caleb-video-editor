@@ -10,6 +10,7 @@ import type { Capturer } from './capture';
 import { MAX_FRAMES_PER_CALL } from './config';
 import { musicSummary, sceneMusicContext, snapCuts } from './musicContext';
 import type { ProjectStore } from './projects';
+import { listProjectFiles, projectFile } from './projectFiles';
 import { describeSeam, type SeamService } from './seams';
 import type { MusicEngine } from './music/engine';
 import type { MusicLibrary } from './music/library';
@@ -86,6 +87,7 @@ export function createToolServer(services: ToolServices, scope: Scope): McpServe
 
   async function project(id?: string): Promise<ProjectState> {
     const projectId = id ?? scope.projectId;
+    if (scope.kind !== 'open' && projectId !== scope.projectId) throw new ToolError('This chat may only access its own project.');
     if (projectId) return store.get(projectId);
     const all = await store.list();
     if (all.length === 1) return store.get(all[0].id);
@@ -129,6 +131,43 @@ export function createToolServer(services: ToolServices, scope: Scope): McpServe
       }
     }) as never);
   }
+
+  tool(
+    'list_project_files',
+    'List scene source, shared components and art direction files in the project.',
+    { project: projectArg },
+    async (args) => {
+      const p = await project(args.project);
+      return text((await listProjectFiles(p, scope)).join('\n'));
+    },
+    true,
+  );
+
+  tool(
+    'read_project_file',
+    'Read a project source file. Paths are relative to the project folder.',
+    { project: projectArg, file: z.string() },
+    async (args) => {
+      const p = await project(args.project);
+      return text(await fs.readFile(await projectFile(p, scope, args.file), 'utf8'));
+    },
+    true,
+  );
+
+  tool(
+    'write_project_file',
+    'Replace a project source file with complete UTF-8 content. Scene chats may only write their own scene; project chats may also write components and art-direction.md. Never write project.json.',
+    { project: projectArg, file: z.string(), content: z.string() },
+    async (args) => {
+      const p = await project(args.project);
+      const file = await projectFile(p, scope, args.file, true);
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      await fs.writeFile(file, args.content);
+      await store.syncCode(p.id);
+      store.changed(p.id);
+      return text(`Wrote ${args.file}`);
+    },
+  );
 
   function describeProject(p: ProjectState): string {
     const total = p.scenes.reduce((s, x) => s + x.duration, 0);

@@ -62,6 +62,7 @@ export function createApi({ store, hub, seams, renderer, provider, chats, diagno
   app.get('/info', async (c) =>
     c.json({
       provider: await provider.status(),
+      providerId: provider.id,
       model: DEFAULT_MODEL,
       effort: DEFAULT_EFFORT,
       efforts: EFFORTS,

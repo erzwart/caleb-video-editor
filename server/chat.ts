@@ -27,6 +27,9 @@ export interface SendInput {
 }
 
 const SCENE_TOOLS = [
+  'list_project_files',
+  'read_project_file',
+  'write_project_file',
   'get_project',
   'render_frames',
   'check_seams',
@@ -81,7 +84,7 @@ export class ChatManager {
     const key = scopeKey(scope);
     const text = input.text.trim();
     if (!text) throw new HttpError(400, 'Message is empty');
-    if (this.isBusy(projectId, key)) throw new HttpError(409, 'Claude is still working on the previous message');
+    if (this.isBusy(projectId, key)) throw new HttpError(409, 'The agent is still working on the previous message');
     const project = await this.deps.store.get(projectId);
     if (scope.kind === 'scene' && !project.scenes.some((s) => s.id === scope.sceneId)) {
       throw new HttpError(404, `Scene "${scope.sceneId}" not found`);
@@ -134,7 +137,7 @@ export class ChatManager {
   /** Undo the most recent turn in this chat that changed files. */
   async undo(projectId: string, scope: ChatScope): Promise<ChatMessage> {
     const key = scopeKey(scope);
-    if (this.isBusy(projectId, key)) throw new HttpError(409, 'Wait for Claude to finish before undoing');
+    if (this.isBusy(projectId, key)) throw new HttpError(409, 'Wait for the agent to finish before undoing');
     const thread = await this.thread(projectId, scope);
     const target = [...thread.messages].reverse().find((m) => m.role === 'assistant' && m.undoId && !m.undone);
     if (!target?.undoId) throw new HttpError(400, 'Nothing to undo in this chat');
@@ -251,7 +254,12 @@ export class ChatManager {
             break;
           }
           case 'done': {
-            if (resume && ev.isError && /no conversation found/i.test(ev.text)) return { retryFresh: true };
+            if (
+              resume &&
+              ev.isError &&
+              /no conversation found|no rollout found|session.*not found|thread.*not found/i.test(ev.text)
+            )
+              return { retryFresh: true };
             if (ev.sessionId) thread.sessionId = ev.sessionId;
             reply.durationMs = Date.now() - started;
             reply.costUsd = ev.costUsd;
@@ -274,7 +282,10 @@ export class ChatManager {
     };
 
     try {
-      const existing = thread.sessionId;
+      // Legacy threads belong to Claude; never hand a provider another provider's session.
+      const existing = (thread.providerId ?? 'claude-code') === provider.id ? thread.sessionId : null;
+      thread.sessionId = existing;
+      thread.providerId = provider.id;
       const first = await attempt(Boolean(existing), existing ?? randomUUID());
       if (first.retryFresh) {
         thread.sessionId = null;

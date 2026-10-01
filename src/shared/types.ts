@@ -156,6 +156,7 @@ export interface ChatMessage {
 
 export interface ChatThread {
   scope: ChatScope;
+  providerId?: string;
   sessionId: string | null;
   messages: ChatMessage[];
 }

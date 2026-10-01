@@ -3,10 +3,11 @@ import http from 'node:http';
 import path from 'node:path';
 import { getRequestListener } from '@hono/node-server';
 import { ClaudeCodeProvider } from './agents/claudeCode';
+import { CodexProvider } from './agents/codex';
 import { createApi } from './api';
 import { Capturer } from './capture';
 import { ChatManager } from './chat';
-import { BASE_URL, HOST, MCP_URL, PORT, PROJECTS_DIR } from './config';
+import { AGENT_PROVIDER, BASE_URL, HOST, MCP_URL, PORT, PROJECTS_DIR } from './config';
 import { Hub } from './hub';
 import { handleMcp } from './mcp';
 import { MusicEngine } from './music/engine';
@@ -68,7 +69,7 @@ async function main() {
 
   const capturer = new Capturer(store);
   const seams = new SeamService(store, capturer, hub);
-  const provider = new ClaudeCodeProvider();
+  const provider = AGENT_PROVIDER === 'codex' ? new CodexProvider() : new ClaudeCodeProvider();
   const undo = new UndoStore(store);
   // The music and sound-effects engines are started with `./storyboard start`; Storyboard only watches them.
   const engine = new MusicEngine();
@@ -144,7 +145,9 @@ async function main() {
     console.log(`  Projects    ${PROJECTS_DIR}`);
     console.log(`  Agent       ${status.ok ? `${status.label} ${status.version ?? ''}` : `unavailable — ${status.detail}`}`);
     console.log(`  MCP         ${MCP_URL}`);
-    console.log(`              claude mcp add --transport http storyboard ${MCP_URL}\n`);
+    console.log(
+      `              ${AGENT_PROVIDER === 'codex' ? 'codex mcp add storyboard --url' : 'claude mcp add --transport http storyboard'} ${MCP_URL}\n`,
+    );
   });
 
   let closing = false;

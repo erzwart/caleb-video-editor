@@ -40,7 +40,7 @@ function Welcome() {
         </span>
         <h1>Make a video by describing it</h1>
         <p className="dim">
-          Every scene is a small piece of code that draws one frame at a time. Describe what you want, and Claude writes and
+          Every scene is a small piece of code that draws one frame at a time. Describe what you want, and the agent writes and
           refines it while you watch the preview.
         </p>
         <button className="btn btn-primary btn-lg" onClick={() => useEditor.setState({ modal: 'new-project' })}>

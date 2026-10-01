@@ -10,6 +10,7 @@ import type {
 } from '../shared/types';
 
 export interface Info {
+  providerId: string;
   provider: { ok: boolean; label: string; version?: string; detail?: string };
   model: string;
   effort: string;

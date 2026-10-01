@@ -12,7 +12,7 @@ npm run format
 
 Adding or upgrading a dependency is the only time to use `npm install`, and then always as `npm install --ignore-scripts <package>@<version>`. Check the `package-lock.json` diff before committing it; everyone else installs exactly what it pins with `npm ci --ignore-scripts`.
 
-**Adding another agent provider**: providers implement `AgentProvider` (`server/agents/types.ts`): take an `AgentTurn` (working directory, prompt, system prompt, session, model/effort, allowed tools, MCP servers, abort signal) and yield `AgentEvent`s (text deltas, tool starts/ends, done). `server/agents/claudeCode.ts` is the reference implementation; register a new one in `server/index.ts`. Because the tools are an MCP server, any MCP-capable agent can use them.
+**Adding another agent provider**: providers implement `AgentProvider` (`server/agents/types.ts`): take an `AgentTurn` (working directory, prompt, system prompt, session, model/effort, allowed tools, MCP servers, abort signal) and yield `AgentEvent`s (text deltas, tool starts/ends, done). `server/agents/codex.ts` and `server/agents/claudeCode.ts` are the implementations; register a new one in `server/index.ts`. Because the tools are an MCP server, any MCP-capable agent can use them.
 
 ## The `storyboard` command
 

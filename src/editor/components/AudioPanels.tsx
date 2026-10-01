@@ -41,7 +41,9 @@ export async function uploadSoundFiles(files: File[]) {
   }
   if (!added.length) return;
   await refreshProject().catch(() => undefined);
-  toast(`Added ${added.map((n) => `“${n}”`).join(', ')} to the sounds. Ask Claude to use ${added.length === 1 ? 'it' : 'them'}.`);
+  toast(
+    `Added ${added.map((n) => `“${n}”`).join(', ')} to the sounds. Ask the agent to use ${added.length === 1 ? 'it' : 'them'}.`,
+  );
 }
 
 /** Cue errors from the scenes, plus cues naming a sound the library doesn't have. */
@@ -307,7 +309,7 @@ export function SoundsPanel() {
           </div>
         ))}
         {count === 0 ? (
-          <p className="audio-empty">No sounds yet. Ask Claude for sound design, or drop audio files here.</p>
+          <p className="audio-empty">No sounds yet. Ask the agent for sound design, or drop audio files here.</p>
         ) : (
           <ul className="sound-list">
             {project.sounds.map((sound) => {

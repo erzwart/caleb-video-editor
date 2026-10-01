@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { Fill, ease, progress, type SceneProps, type SceneSounds } from 'storyboard';
+import { Fill, asset, ease, progress, type SceneProps, type SceneSounds } from 'storyboard';
 import { Headline, type WordState } from '../components/Headline';
 import { LOOKS, PromptCard, type LayerName } from '../components/PromptCard';
 import { BG, CARD, HEADLINE_SIZE, HEADLINE_TOP, INK, MONO, PINK } from '../components/tokens';
@@ -52,7 +52,7 @@ const CODE: Token[][] = [
 ];
 const TOTAL_CHARS = CODE.reduce((n, line) => n + line.reduce((m, [text]) => m + text.length, 0), 0);
 
-const WORDS = ['Every', 'scene', 'is', 'code.'];
+const WORDS = ['de ijsbaan', 'gaat', 'weer', 'open'];
 const BIG = 150;
 
 /** Moments shared by the animation and the sound cues. */
@@ -155,6 +155,7 @@ export default function Intro({ t }: SceneProps) {
 
   return (
     <Fill style={{ background: BG }}>
+      <img src={asset('bg-ijch.jpg')} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       {panel > 0 && <PromptCard look={LOOKS.inset} layer={layer} style={cardStyle} />}
       {panel > 0 && codeFade > 0 && typedChars > 0 && <CodeLines visible={typedChars} fade={codeFade} />}
       <Headline words={words} style={headlineStyle} />

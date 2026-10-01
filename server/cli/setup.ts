@@ -3,8 +3,8 @@
 // turning something off offers to remove its files. Everything it installs stays in the app folder.
 import fs from 'node:fs';
 import path from 'node:path';
-import { BASE_URL, CLAUDE_BIN, MUSIC_DIR, ROOT, SFX_DIR } from '../config';
-import { checkChromium, checkFfmpeg, claudeStatus } from '../doctor';
+import { AGENT_PROVIDER, BASE_URL, CLAUDE_BIN, MUSIC_DIR, ROOT, SFX_DIR } from '../config';
+import { checkChromium, checkCodex, checkFfmpeg, claudeStatus } from '../doctor';
 import { engineInstalled } from '../music/engine';
 import { readSettings, writeSettings, type Settings } from '../settings';
 import { sfxEngineInstalled, sfxModelDownloaded } from '../sound/engine';
@@ -308,7 +308,7 @@ async function keepOrRemove(ask: boolean, what: string, size: number): Promise<b
 async function chooseMusic(ask: boolean, flag: boolean | undefined, before: Settings | null): Promise<EngineChoice> {
   const off: EngineChoice = { on: false, moveFrom: null, remove: false };
   const lines = railText(
-    'Claude composes original soundtracks for your videos with ACE-Step 1.5, an open music model that runs on this machine. MIT-licensed; the music can be used commercially. Without it, you can still use your own tracks.',
+    'The agent composes original soundtracks for your videos with ACE-Step 1.5, an open music model that runs on this machine. MIT-licensed; the music can be used commercially. Without it, you can still use your own tracks.',
   );
   const unsupported = musicUnsupported();
   if (unsupported) {
@@ -662,7 +662,12 @@ async function runSetup(opts: SetupOptions): Promise<boolean> {
   rail.section('Basics');
   rail.done(`Node.js ${process.versions.node}`);
   if (!(await ensureFfmpeg(ask))) missing.push('ffmpeg (renders need it)');
-  if (!(await ensureClaude(ask))) missing.push('Claude Code, logged in (the chat needs it)');
+  if (AGENT_PROVIDER === 'codex') {
+    const check = await checkCodex();
+    rail.mark(check.level, check.label);
+    if (check.fix) rail.hint(check.fix);
+    if (check.level === 'fail') missing.push('Codex, logged in (run codex login)');
+  } else if (!(await ensureClaude(ask))) missing.push('Claude Code, logged in (the chat needs it)');
 
   rail.section('Storyboard');
   if (!(await ensurePackages())) {

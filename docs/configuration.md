@@ -6,10 +6,11 @@ Set these when starting, e.g. `PORT=5299 ./storyboard start`.
 | --- | --- | --- |
 | `PORT` | `5199` | |
 | `STORYBOARD_PROJECTS` | `./projects` | Where projects live |
-| `STORYBOARD_MODEL` | `claude-opus-5-5` | Model the in-app agent uses |
+| `STORYBOARD_AGENT` | `codex` | Agent provider (`codex` or `claude-code`); set for both setup and start |
+| `STORYBOARD_MODEL` | Codex CLI default (Claude: `claude-opus-5-5`) | Model the in-app agent uses |
 | `STORYBOARD_EFFORT` | `medium` | Default effort (the UI remembers your choice) |
-| `CLAUDE_PATH` / `FFMPEG_PATH` | `claude` / `ffmpeg` | Binaries |
-| `STORYBOARD_USE_API_KEY` | unset | By default `ANTHROPIC_API_KEY` is removed from the agent's environment so Claude Code uses your login; set this to keep it |
+| `CODEX_PATH` / `CLAUDE_PATH` / `FFMPEG_PATH` | `codex` / `claude` / `ffmpeg` | Binaries |
+| `STORYBOARD_USE_API_KEY` | unset | By default `OPENAI_API_KEY` and `CODEX_API_KEY` (Codex) or `ANTHROPIC_API_KEY` (Claude) are removed from the agent environment; set this to keep them. The CLI uses its existing login, which may itself be an API-key login. |
 | `STORYBOARD_AGENT_LOG` | unset | Path of a file to append the agent's raw stream-json to (debugging) |
 | `STORYBOARD_MUSIC_URL` / `STORYBOARD_SFX_URL` | `http://127.0.0.1:8001` / `:8002` | Where the engines answer. Point one at another machine to run the engine there |
 | `STORYBOARD_MUSIC_API_KEY` / `STORYBOARD_SFX_API_KEY` | a random key in `.storyboard/keys/` | The engines' API keys (set them when an engine runs elsewhere) |

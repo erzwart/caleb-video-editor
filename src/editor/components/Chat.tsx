@@ -11,7 +11,7 @@ const SCENE_IDEAS = [
   'Match the first frame to the last frame of the previous scene so the cut is invisible.',
 ];
 
-const MODELS: [string, string][] = [
+const CLAUDE_MODELS: [string, string][] = [
   ['claude-opus-5-5', 'Opus 5.5'],
   ['claude-sonnet-5-5', 'Sonnet 5.5'],
   ['claude-fable-5-1', 'Fable 5.1'],
@@ -65,7 +65,7 @@ function FrameStrip({ images, onOpen }: { images: string[]; onOpen: (index: numb
   return (
     <div className="frame-strip">
       {images.map((src, i) => (
-        <button key={src} onClick={() => onOpen(i)} title="Frame Claude looked at">
+        <button key={src} onClick={() => onOpen(i)} title="Frame the agent looked at">
           <img src={src} alt="" loading="lazy" />
         </button>
       ))}
@@ -123,7 +123,7 @@ function AssistantMessage({ message }: { message: ChatMessage }) {
         </div>
       )}
       {viewer !== null && (
-        <Modal title="Frame Claude looked at" onClose={() => setViewer(null)} wide>
+        <Modal title="Frame the agent looked at" onClose={() => setViewer(null)} wide>
           <img className="viewer-image" src={images[viewer]} alt="" />
           {images.length > 1 && (
             <div className="viewer-nav">
@@ -156,7 +156,12 @@ function UserMessage({ message }: { message: ChatMessage }) {
 function Composer({ scopeKey, busy, fill }: { scopeKey: string; busy: boolean; fill: string | null }) {
   const project = useEditor((s) => s.project)!;
   const effort = useEditor((s) => s.effort);
-  const model = useEditor((s) => s.model || s.info?.model || MODELS[0][0]);
+  const info = useEditor((s) => s.info);
+  const savedModel = useEditor((s) => s.model);
+  const isCodex = info?.providerId === 'codex';
+  const MODELS: [string, string][] = isCodex ? [['', 'Codex default']] : CLAUDE_MODELS;
+  const compatible = isCodex ? !savedModel.startsWith('claude-') : savedModel.startsWith('claude-');
+  const model = (compatible ? savedModel : '') || info?.model || MODELS[0][0];
   const efforts = useEditor((s) => s.info?.efforts ?? ['low', 'medium', 'high', 'xhigh', 'max']);
   const draftKey = `sb:draft:${project.id}/${scopeKey}`;
   const [text, setText] = useState(() => sessionStorage.getItem(draftKey) ?? '');
@@ -220,7 +225,7 @@ function Composer({ scopeKey, busy, fill }: { scopeKey: string; busy: boolean; f
             )}
           </select>
         </label>
-        <label className="effort" title="Effort: how much Claude thinks before and while editing">
+        <label className="effort" title="Effort: how much the agent thinks before and while editing">
           <select value={effort} onChange={(e) => setEffort(e.target.value)}>
             {efforts.map((x) => (
               <option key={x} value={x}>
@@ -295,7 +300,7 @@ export function Chat({ scopeKey }: { scopeKey: string }) {
               <p>
                 {scopeKey === '_project'
                   ? 'Talk about the video as a whole: structure, pacing, new scenes, consistency.'
-                  : 'Describe a change to this scene. Claude edits the code, renders frames to check its work, and the preview updates live.'}
+                  : 'Describe a change to this scene. The agent edits the code, renders frames to check its work, and the preview updates live.'}
               </p>
               {ideas.map((idea) => (
                 <button key={idea} className="idea" onClick={() => setFill(idea)}>

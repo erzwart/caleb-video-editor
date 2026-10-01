@@ -41,9 +41,14 @@ export const SFX_KEY_FILE = path.join(KEYS_DIR, 'sfx');
 
 export const FFMPEG = process.env.FFMPEG_PATH ?? 'ffmpeg';
 export const CLAUDE_BIN = process.env.CLAUDE_PATH ?? 'claude';
+export const CODEX_BIN = process.env.CODEX_PATH ?? 'codex';
+export const AGENT_PROVIDER = process.env.STORYBOARD_AGENT ?? 'codex';
+if (!['codex', 'claude-code'].includes(AGENT_PROVIDER)) {
+  throw new Error('STORYBOARD_AGENT must be codex or claude-code');
+}
 
 /** Model and effort the in-app agent uses unless the UI picks something else. */
-export const DEFAULT_MODEL = process.env.STORYBOARD_MODEL ?? 'claude-opus-5-5';
+export const DEFAULT_MODEL = process.env.STORYBOARD_MODEL ?? (AGENT_PROVIDER === 'codex' ? '' : 'claude-opus-5-5');
 export const DEFAULT_EFFORT = (process.env.STORYBOARD_EFFORT ?? 'medium') as Effort;
 export const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 export type Effort = (typeof EFFORTS)[number];

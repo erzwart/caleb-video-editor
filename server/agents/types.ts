@@ -52,7 +52,7 @@ export interface AgentProviderStatus {
   detail?: string;
 }
 
-/** Anything that can run an agent turn against the Storyboard tools (Claude Code today, others later). */
+/** Anything that can run an agent turn against the Storyboard tools (Codex and Claude Code). */
 export interface AgentProvider {
   id: string;
   label: string;
